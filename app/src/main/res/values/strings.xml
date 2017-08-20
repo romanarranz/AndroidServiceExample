@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AndroidServiceExample</string>
+    <string name="service_started">Example Service started</string>
+    <string name="service_label">Example Service Label</string>
+
+    <!-- SyncAdapter related -->
+    <string name="sync_account_type">androidserviceexample.romanarranz.github.com</string>
+
+</resources>

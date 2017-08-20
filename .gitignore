@@ -1,0 +1,39 @@
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+# https://stackoverflow.com/questions/16736856/what-should-be-in-my-gitignore-for-an-android-studio-project
+
+# Dependencies
+
+# Compiled output
+build
+*.apk
+*.ap_
+
+# files for the dex VM
+*.dex
+
+# Runtime data
+
+# Test coverage
+
+# Editors and IDEs
+.idea
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Misc
+.DS_Store
+Thumbs.db
+.classpath
+.project
+local.properties
+
+# Android Studio
+*.iml
+.gradle
+captures
+
+# NDK
+obj
