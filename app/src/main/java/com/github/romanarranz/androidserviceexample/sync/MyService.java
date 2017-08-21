@@ -29,6 +29,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
+ * Servicio de enlace que permite que los componentes se enlacen a el llamando a bindService(),
+ * generalmente no lo inician con startService().
  *
  * Created by romanarranzguerrero on 20/8/17.
  */
@@ -45,59 +47,63 @@ public class MyService extends Service {
 
     private static boolean sRunning = true;
 
-    private Timer mTimer;
+    private Thread mTimer;
     private int mCounter = 0, mIncrementBy = 1;
 
     private Messenger mClient; // cliente registrado
-    private Messenger mMessenger;
+    private final Messenger mMessenger = new Messenger(new IncomingHandler());
 
     @Override
     public void onCreate() {
-        Toast.makeText(this, "OnCreate", Toast.LENGTH_SHORT).show();
-        mMessenger = new Messenger(new IncomingHandler());
         super.onCreate();
+
+        Log.i(LOG_TAG, "OnCreate");
+        Log.i(LOG_TAG, this.toString());
+
         showNotification();
 
-        mTimer = new Timer();
-        mTimer.scheduleAtFixedRate(new TimerTask() {
+        sRunning = true;
+
+        mTimer = new Thread(new Runnable() {
             @Override
             public void run() {
-                onTimerTick();
+                while(sRunning) {
+                    try {
+                        Thread.sleep(1000);
+                        onTimerTick();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        }, 0, 1000);
-        sRunning = true;
+        });
+
+        mTimer.start();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(LOG_TAG, "Received start id " + startId + ": " + intent);
         return START_STICKY;
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        Toast.makeText(this, "OnBind", Toast.LENGTH_SHORT).show();
-        Log.i(LOG_TAG, mMessenger.toString());
         return mMessenger.getBinder();
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Toast.makeText(this, "OnUnbind", Toast.LENGTH_SHORT).show();
         return true;
     }
 
     @Override
     public void onRebind(Intent intent) {
-        Toast.makeText(this, "OnRebind", Toast.LENGTH_SHORT).show();
         super.onRebind(intent);
     }
 
     @Override
     public void onDestroy() {
-        Toast.makeText(this, "OnDestroy", Toast.LENGTH_SHORT).show();
         super.onDestroy();
-        mTimer = null;
         sRunning = false;
     }
 
@@ -134,14 +140,13 @@ public class MyService extends Service {
                         .setContentTitle(title)
                         .setContentText(contentText);
 
-        // El PendingIntent lanzara nuestra activity si el usuario selecciona esta notificacion
+        // El PendingIntent lanzara el MainActivity si el usuario pulsa en esta notificacion
+        // si la activity estaba en OnStop, OnPause pasará a OnResume, en lugar de destruirse y crearse
         Intent resultIntent = new Intent(this, MainActivity.class);
+        resultIntent.setAction(Intent.ACTION_MAIN);
+        resultIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 
-        // El TaskStackBuikder contendra un back stack artificial para la Activity que abrimos.
-        // Esto asegura que cuando naveguemos hacia atras el usuario vaya al Home Screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, 0);
 
         notificationBuilder.setContentIntent(resultPendingIntent);
 
