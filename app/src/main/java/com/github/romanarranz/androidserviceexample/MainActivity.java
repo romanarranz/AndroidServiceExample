@@ -1,5 +1,6 @@
 package com.github.romanarranz.androidserviceexample;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +19,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.romanarranz.androidserviceexample.helpers.Utility;
 import com.github.romanarranz.androidserviceexample.sync.MyService;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Vistas
      */
-    private Button mBtnStart, mBtnStop, mBtnBind, mBtnUnbind, mBtnUpby1, mBtnUpby10;
+    private Button mBtnStart, mBtnStop, mBtnBind, mBtnUnbind, mBtnUpby1, mBtnUpby10, mBtnOpen3;
     private TextView mTextStatus, mTextIntValue, mTextStrValue;
 
     /**
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
         mBtnStart = (Button)findViewById(R.id.btnStart);
         mBtnStop = (Button)findViewById(R.id.btnStop);
+        mBtnOpen3 = (Button) findViewById(R.id.open3);
         mBtnBind = (Button)findViewById(R.id.btnBind);
         mBtnUnbind = (Button)findViewById(R.id.btnUnbind);
         mTextStatus = (TextView)findViewById(R.id.textStatus);
@@ -112,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
         Log.i(LOG_TAG, "onDestroy");
         try {
             doUnbindService();
-            stopService(new Intent(MainActivity.this, MyService.class));
+            //stopService(new Intent(MainActivity.this, MyService.class));
         } catch (Throwable t) {
             Log.e(LOG_TAG, "Failed to unbind from the service", t);
         }
@@ -130,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
      * Bind de los listeners de los botones
      */
     private void initBtnListeners() {
+        final Activity activity = this;
         mBtnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -141,6 +146,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 stopService(new Intent(MainActivity.this, MyService.class));
+            }
+        });
+
+        mBtnOpen3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                Utility.openApp(activity, "com.github.romanarranz.servicereceiver", bundle);
             }
         });
 
